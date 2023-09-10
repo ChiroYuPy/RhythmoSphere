@@ -1,0 +1,68 @@
+{
+    "maps": [
+        {
+            "name": "Map 1",
+            "file_path": "maps/map1.json"
+        },
+        {
+            "name": "Map 2",
+            "file_path": "maps/map2.json"
+        },
+        {
+            "name": "Map 2",
+            "file_path": "maps/map2.json"
+        },
+        {
+            "name": "Map 2",
+            "file_path": "maps/map2.json"
+        },
+        {
+            "name": "Map 1",
+            "file_path": "maps/map1.json"
+        },
+        {
+            "name": "Map 2",
+            "file_path": "maps/map2.json"
+        },
+        {
+            "name": "Map 2",
+            "file_path": "maps/map2.json"
+        },
+        {
+            "name": "Map 2",
+            "file_path": "maps/map2.json"
+        },
+        {
+            "name": "Map 1",
+            "file_path": "maps/map1.json"
+        },
+        {
+            "name": "Map 2",
+            "file_path": "maps/map2.json"
+        },
+        {
+            "name": "Map 2",
+            "file_path": "maps/map2.json"
+        },
+        {
+            "name": "Map 2",
+            "file_path": "maps/map2.json"
+        },
+        {
+            "name": "Map 1",
+            "file_path": "maps/map1.json"
+        },
+        {
+            "name": "Map 2",
+            "file_path": "maps/map2.json"
+        },
+        {
+            "name": "Map 2",
+            "file_path": "maps/map2.json"
+        },
+        {
+            "name": "Map 2",
+            "file_path": "maps/map2.json"
+        }
+    ]
+}

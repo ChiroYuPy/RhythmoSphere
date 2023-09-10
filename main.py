@@ -7,7 +7,13 @@ from settings import *
 
 class Game:
     def __init__(self):
+        self.map_duration = 0
+        self.current_time = 0
+        self.progress_bar_color = (0, 255, 0)
+        self.fps = 60
+        self.is_paused = None
         pygame.init()
+        self.clock = pygame.time.Clock()
         pygame.mixer.init()
         self.load_assets()
         self.init_display()
@@ -23,12 +29,15 @@ class Game:
         return 0
 
     def load_assets(self):
-        self.music = pygame.mixer.music.load("songs/astronomia.mp3")
+        self.music = pygame.mixer.music.load("sound/astronomia.mp3")
         pygame.mixer.music.set_volume(0.1)
         pygame.mixer.music.play(1)
         self.cursor_image = pygame.image.load(cursor_image)
         self.circle_image = pygame.image.load(circle_image)
         self.aproach_circle_image = pygame.image.load(aproach_circle_image)
+        self.pause_menu = pygame.image.load(pause_menu_image)
+        self.pause_menu = pygame.transform.scale(self.pause_menu,
+                                                 (window[0], window[1]))  # Redimensionnez le menu de pause
         pygame.mouse.set_visible(False)
 
     def init_display(self):
@@ -63,31 +72,56 @@ class Game:
                 for row in csv_reader:
                     if len(row) == 3:
                         time, circle_x, circle_y = map(float, row)
-                        time *= self.tempo_multiplicator
                         self.circle_data.append([time, circle_x, circle_y, False])
+                        if time > self.map_duration:
+                            self.map_duration = time + 2
         except FileNotFoundError:
             print(f"Le fichier {filename} n'existe pas.")
 
     def run(self):
         while self.running:
             self.handle_events()
-            self.update()
+            if not self.is_paused:
+                self.update()
+            self.fps = self.clock.get_fps()
+            self.clock.tick(60)
+
             self.render()
+
+            pygame.time.delay(10)
 
         pygame.quit()
         sys.exit()
 
     def handle_events(self):
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                self.running = False
-            if event.type == pygame.MOUSEBUTTONUP:
-                self.clicked = False
-            if event.type == pygame.MOUSEMOTION:
-                self.trail_manager.update_position(event.pos)  # Met à jour la position du curseur
+        if not self.is_paused:  # Vérifiez si le jeu n'est pas en pause
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    self.running = False
+                elif event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_ESCAPE:
+                        self.toggle_pause()
+                elif event.type == pygame.MOUSEBUTTONUP:
+                    self.clicked = False  # Désactivez les clics de souris lorsque le jeu est en pause
+        else:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    self.running = False
+                elif event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_ESCAPE:
+                        self.toggle_pause()
+
+    # Ajoutez une fonction pour basculer la pause
+    def toggle_pause(self):
+        self.is_paused = not self.is_paused
+        if self.is_paused:
+            pygame.mixer.music.pause()  # Mettez la musique en pause
+        else:
+            pygame.mixer.music.unpause()  # Reprenez la musique
 
     def update(self):
         map_current_time = (time.time() - self.map_start_time) * self.tempo_multiplicator
+        self.current_time = map_current_time
 
         self.check_circles(map_current_time)
         self.update_precision()
@@ -152,6 +186,14 @@ class Game:
         self.render_precision()
         self.render_score()
 
+        progress_width = int((self.current_time / self.map_duration) * window[0])
+        pygame.draw.rect(self.screen, self.progress_bar_color, (0, 0, progress_width, 10))
+
+        fps_text = self.font24.render(f"FPS: {int(self.fps)}", True, WHITE)
+        self.screen.blit(fps_text, (10, 10))
+
+        self.mouse_prev_state = pygame.mouse.get_pressed()[0]
+
         # Afficher les traînées derrière le curseur
         for position, duration in self.trail_manager.get_trails():
             pygame.draw.circle(self.screen, trail_color, position,
@@ -160,6 +202,13 @@ class Game:
         mouse_x, mouse_y = pygame.mouse.get_pos()
         self.screen.blit(self.cursor_image, (mouse_x - self.cursor_image.get_width() / 2,
                                              mouse_y - self.cursor_image.get_height() / 2))
+
+        # Afficher le chemin du curseur
+        self.trail_manager.update_position((mouse_x, mouse_y))
+        self.trail_manager.draw(self.screen)
+
+        if self.is_paused:
+            self.screen.blit(self.pause_menu, (0, 0))
 
         pygame.display.flip()
 
@@ -234,7 +283,7 @@ class Game:
         total_score_text = self.font48.render(str(self.score).zfill(8), True, WHITE)
 
         accuracy = self.calculate_accuracy()
-        accuracy_text = self.font72.render(f"{accuracy:.2f}%", True, WHITE)
+        accuracy_text = self.font48.render(f"{accuracy:.2f}%", True, WHITE)
         self.screen.blit(accuracy_text, ((window[0] - accuracy_text.get_width()) // 2, 12))
 
         self.screen.blit(hundred_score_text, (stats_x + 20, stats_y + 30))
@@ -287,8 +336,6 @@ class TrailManager:
 
     def get_trails(self):
         return self.trails  # Renvoie la liste des traînées actives
-
-
 
 
 class CircleManager:

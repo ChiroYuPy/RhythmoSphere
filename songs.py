@@ -1,7 +1,7 @@
 import numpy as np
 import librosa
 
-y, sr = librosa.load("songs/astronomia.mp3")
+y, sr = librosa.load("sound/astronomia.mp3")
 
 hop_length = 12
 
