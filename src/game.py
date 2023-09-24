@@ -1,7 +1,8 @@
 import csv
+import random
 import sys
 import time
-
+from src.particle import Particle
 import pygame
 
 from src import CircleManager, TrailManager
@@ -11,7 +12,8 @@ from src.utils.CreateRythmo import play_map_music
 
 
 class Game:
-    def __init__(self):
+    def __init__(self, beatmap_name):
+        self.beatmap_name = beatmap_name
         self.map_duration = 0
         self.current_time = 0
         self.progress_bar_color = (0, 255, 0)
@@ -35,7 +37,6 @@ class Game:
         self.cursor_image = pygame.image.load(cursor_image)
         self.circle_image = pygame.image.load(circle_image)
         self.aproach_circle_image = pygame.image.load(aproach_circle_image)
-        self.pause_menu = pygame.image.load(pause_menu_image)
         pygame.mouse.set_visible(False)
 
     def init_display(self):
@@ -57,7 +58,7 @@ class Game:
         self.score = 0
         self.combo = 1
         self.map_start_time = time.time()
-        self.font = pygame.font.Font("assets/font/SCF.ttf", 36)
+        self.font = pygame.font.Font("assets/fonts/SCF.ttf", 36)
         self.mouse_prev_state = False
         self.clicked = False
         self.precision_duration = 4
@@ -76,10 +77,10 @@ class Game:
         except FileNotFoundError:
             raise InvalidLevelException("File not found")
 
-    def run(self):
+    def BeatMapRun(self):
         pygame.init()
         pygame.mixer.init()
-        play_map_music("astronomia", pygame)
+        play_map_music(self.beatmap_name, pygame)
         while self.running:
             self.handle_events()
             if not self.is_paused:
@@ -145,25 +146,21 @@ class Game:
             precision = abs(circle[0] - map_current_time)
             self.handle_precision(precision)
             circle[3] = True
-            print(precision)
             if 1.7 < precision < 2.3:
                 self.score_300 += 1
                 self.score += 300 * self.combo
                 self.combo += 1
                 self.approach_circle = None
-                print("300")
             elif 1.4 < precision < 2.6:
                 self.score_100 += 1
                 self.score += 100 * self.combo
                 self.combo += 1
                 self.approach_circle = None
-                print("100")
             elif 1 < precision < 3:
                 self.score_50 += 1
                 self.score += 50 * self.combo
                 self.combo += 1
                 self.approach_circle = None
-                print("50")
 
     def handle_missed_circle(self, circle):
         circle[3] = True
@@ -207,9 +204,6 @@ class Game:
         self.trail_manager.update_position((mouse_x, mouse_y))
         self.trail_manager.draw(self.screen)
 
-        if self.is_paused:
-            self.screen.blit(self.pause_menu, (0, 0))
-
         pygame.display.flip()
 
         self.mouse_prev_state = pygame.mouse.get_pressed()[0]
@@ -241,7 +235,7 @@ class Game:
                     # Dessinez le cercle à sa taille normale une fois le temps écoulé
                     self.screen.blit(circle_image_double, circle_rect)
 
-                font = pygame.font.Font("assets/font/sixty.ttf", 36)
+                font = pygame.font.Font("assets/fonts/sixty.ttf", 36)
                 text = font.render("1", True, WHITE)
                 text_rect = text.get_rect()
                 text_rect.center = circle_rect.center
@@ -269,9 +263,9 @@ class Game:
         pygame.draw.rect(self.screen, BLUE, pygame.Rect(stats_x + 72, stats_y + 76, 30, 10), 0, 10)
         pygame.draw.rect(self.screen, RED, pygame.Rect(stats_x + 128, stats_y + 76, 30, 10), 0, 10)
 
-        self.font24 = pygame.font.Font("assets/font/SCF.ttf", 24)
-        self.font48 = pygame.font.Font("assets/font/SCF.ttf", 48)
-        self.font72 = pygame.font.Font("assets/font/SCF.ttf", 72)
+        self.font24 = pygame.font.Font("assets/fonts/SCF.ttf", 24)
+        self.font48 = pygame.font.Font("assets/fonts/SCF.ttf", 48)
+        self.font72 = pygame.font.Font("assets/fonts/SCF.ttf", 72)
 
         three_hundred_score_text = self.font24.render(f"{self.score_300}", True, WHITE)
         hundred_score_text = self.font24.render(f"{self.score_100}", True, WHITE)

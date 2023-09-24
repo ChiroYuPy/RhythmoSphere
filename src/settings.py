@@ -1,11 +1,10 @@
-window = [1920, 1080]
+window = [1280, 720]
 window_name = "Affichage des cercles"
 FPS = 15
 
-circle_image = "assets/textures/circles/circle.png"
-aproach_circle_image = "assets/textures/circles/approach_circle.png"
-cursor_image = "assets/textures/cursor/cursor.png"
-pause_menu_image = "assets/textures/ui/pause_menu.png"
+circle_image = "assets/images/circles/circle.png"
+aproach_circle_image = "assets/images/circles/approach_circle.png"
+cursor_image = "assets/images/cursors/cursor.png"
 
 bar_width = 420
 bar_height = 16

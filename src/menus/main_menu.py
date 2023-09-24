@@ -1,4 +1,6 @@
+import os
 import sys
+import zipfile
 
 import pygame
 
@@ -12,11 +14,12 @@ class MainMenu:
         pygame.init()
         self.screen = pygame.display.set_mode((window[0], window[1]))
         self.clock = pygame.time.Clock()
-        self.font = pygame.font.Font("assets/font/SCF.ttf", 48)
-        self.title_font = pygame.font.Font("assets/font/SCF.ttf", 72)
+        self.font = pygame.font.Font("assets/fonts/SCF.ttf", 48)
+        self.title_font = pygame.font.Font("assets/fonts/SCF.ttf", 72)
         self.selected_option = 0
         self.options = ["Play", "Quit"]
         self.bpm = 123.05
+
 
     def show(self):
         running = True
@@ -35,10 +38,10 @@ class MainMenu:
                         self.selected_option = (self.selected_option - 1) % len(self.options)
                     elif event.key == pygame.K_RETURN:
                         if self.options[self.selected_option] == "Play":
-                            game = Game()
+                            game = Game("astronomia")
                             try:
                                 game.load_map('data/map.csv')
-                                game.run()
+                                game.BeatMapRun()
                             except InvalidLevelException as e:
                                 print(e.args[0])
 
